@@ -19,9 +19,7 @@ header{
   font-size:18px;
 }
 
-.container{
-  padding:16px;
-}
+.container{padding:16px}
 
 .card{
   background:#134e3a;
@@ -41,7 +39,6 @@ input,button{
 button{
   background:#22c55e;
   font-weight:bold;
-  cursor:pointer;
 }
 
 .menu-grid{
@@ -65,6 +62,7 @@ button{
 }
 </style>
 </head>
+
 <body>
 
 <header>DIMDIM DINO POS</header>
@@ -94,13 +92,13 @@ button{
 <!-- KASIR -->
 <div id="kasirPage" class="container hidden">
   <div class="card">
-    <h3>Kasir</h3>
+    <h3>Pilih Menu</h3>
     <div class="menu-grid" id="menuButtons"></div>
   </div>
 
   <div class="card">
     <h3>Keranjang</h3>
-    <div id="cart"></div>
+    <div id="cartList"></div>
     <h2>Total: Rp <span id="total">0</span></h2>
     <button onclick="backHome()">Kembali</button>
   </div>
@@ -115,13 +113,17 @@ function formatRp(n){
   return n.toLocaleString('id-ID');
 }
 
+/* ===== MENU ===== */
 function saveMenu(){
   const name = menuName.value.trim();
   const price = Number(menuPrice.value);
 
-  if(!name || !price) return alert('Isi nama & harga');
+  if(!name || !price){
+    alert('Nama & harga wajib diisi');
+    return;
+  }
 
-  menus.push({name, price});
+  menus.push({ name, price });
   localStorage.setItem('menus', JSON.stringify(menus));
 
   menuName.value='';
@@ -139,18 +141,7 @@ function renderMenuList(){
   });
 }
 
-function openMenu(){
-  home.classList.add('hidden');
-  menuPage.classList.remove('hidden');
-  renderMenuList();
-}
-
-function openKasir(){
-  home.classList.add('hidden');
-  kasirPage.classList.remove('hidden');
-  renderMenuButtons();
-}
-
+/* ===== KASIR ===== */
 function renderMenuButtons(){
   menuButtons.innerHTML='';
   menus.forEach(m=>{
@@ -162,20 +153,35 @@ function renderMenuButtons(){
   });
 }
 
-function addToCart(m){
-  cart.push(m);
-  total += m.price;
+function addToCart(item){
+  cart.push(item);
+  total += item.price;
   renderCart();
 }
 
 function renderCart(){
-  cart.innerHTML='';
+  cartList.innerHTML='';
   cart.forEach(i=>{
     const d=document.createElement('div');
-    d.textContent=`${i.name} - Rp ${formatRp(i.price)}`;
-    cart.appendChild(d);
+    d.textContent = `${i.name} - Rp ${formatRp(i.price)}`;
+    cartList.appendChild(d);
   });
-  document.getElementById('total').textContent=formatRp(total);
+  document.getElementById('total').textContent = formatRp(total);
+}
+
+/* ===== NAV ===== */
+function openMenu(){
+  home.classList.add('hidden');
+  kasirPage.classList.add('hidden');
+  menuPage.classList.remove('hidden');
+  renderMenuList();
+}
+
+function openKasir(){
+  home.classList.add('hidden');
+  menuPage.classList.add('hidden');
+  kasirPage.classList.remove('hidden');
+  renderMenuButtons();
 }
 
 function backHome(){
