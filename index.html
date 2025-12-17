@@ -10,49 +10,61 @@
 body{background:#0f3d2e;color:#fff}
 .hidden{display:none}
 
-/* UI */
 .container{padding:16px}
-.card{background:#134e3a;padding:16px;border-radius:14px;margin-bottom:14px}
-button,input{width:100%;padding:12px;border:none;border-radius:10px;margin-top:10px}
-button{background:#22c55e;font-weight:bold}
-input{background:#fff;color:#000}
-
-/* Header */
-header{
-  background:#0b2f23;
+.card{
+  background:#134e3a;
+  border-radius:14px;
   padding:16px;
-  text-align:center;
-  font-size:20px;
-  font-weight:bold;
+  margin-bottom:16px;
 }
 
-/* Menu Grid */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
+h1,h2,h3{margin-bottom:8px}
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:10px;
+  background:#22c55e;
+  font-weight:bold;
+  margin-top:10px;
 }
-.menu-btn{
+input{
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:none;
+  margin-top:8px;
+}
+
+.menu-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.menu-item{
   background:#22c55e;
   color:#000;
   padding:14px;
   border-radius:12px;
-  text-align:center;
   font-weight:bold;
 }
-.small{font-size:14px;opacity:.9}
-hr{margin:10px 0;border:1px solid rgba(255,255,255,.2)}
+
+.header{
+  text-align:center;
+  font-size:20px;
+  font-weight:bold;
+  padding:16px;
+}
 </style>
 </head>
 
 <body>
 
-<header>DIMDIM DINO POS</header>
-
 <!-- LOGIN -->
-<div id="login" class="container">
+<div id="loginPage" class="container">
   <div class="card">
-    <h3>Login Kasir</h3>
+    <h2>Login Kasir</h2>
     <input id="user" placeholder="Username">
     <input id="pass" type="password" placeholder="Password">
     <button onclick="login()">MASUK</button>
@@ -60,124 +72,129 @@ hr{margin:10px 0;border:1px solid rgba(255,255,255,.2)}
 </div>
 
 <!-- HOME -->
-<div id="home" class="container hidden">
+<div id="homePage" class="hidden container">
+  <div class="header">DIMDIM DINO POS</div>
   <div class="card">
-    <h3>Bekerja Itu Punya Cerita</h3>
-    <p class="small">Pelan tapi konsisten, biar jejakmu jadi berarti.</p>
-  </div>
-
-  <button onclick="openKasir()">KASIR</button>
-  <button onclick="openMenu()">DAFTAR MENU</button>
-  <button onclick="logout()">LOGOUT</button>
-</div>
-
-<!-- KASIR -->
-<div id="kasir" class="container hidden">
-  <div class="card">
-    <h3>Kasir</h3>
-    <p class="small">Klik menu untuk menambah</p>
-  </div>
-
-  <div id="menuList" class="grid"></div>
-
-  <div class="card">
-    <h3>Keranjang</h3>
-    <div id="cart"></div>
-    <hr>
-    <h3>Total: Rp <span id="total">0</span></h3>
-    <button onclick="resetCart()">Selesai</button>
-    <button onclick="backHome()">Kembali</button>
+    <button onclick="openKasir()">KASIR</button>
+    <button onclick="openMenu()">DAFTAR MENU</button>
   </div>
 </div>
 
 <!-- DAFTAR MENU -->
-<div id="menu" class="container hidden">
+<div id="menuPage" class="hidden container">
   <div class="card">
     <h3>Daftar Menu</h3>
-    <input id="menuName" placeholder="Nama menu">
-    <input id="menuPrice" placeholder="Harga" type="number">
+    <input id="menuName" placeholder="Nama Menu">
+    <input id="menuPrice" type="number" placeholder="Harga">
     <button onclick="saveMenu()">Simpan Menu</button>
+    <div id="menuList"></div>
+    <button onclick="backHome()">Kembali</button>
   </div>
+</div>
 
+<!-- KASIR -->
+<div id="kasirPage" class="hidden container">
   <div class="card">
-    <h3>Menu Tersimpan</h3>
-    <div id="savedMenu"></div>
+    <h3>Pilih Menu</h3>
+    <div id="kasirMenu" class="menu-grid"></div>
+    <hr>
+    <h3>Keranjang</h3>
+    <div id="cart"></div>
+    <h2 id="total">Total: Rp 0</h2>
+    <button onclick="printStruk()">CETAK STRUK</button>
     <button onclick="backHome()">Kembali</button>
   </div>
 </div>
 
 <script>
-/* AUTH */
-function login(){
-  if(user.value==='admin' && pass.value==='1234'){
-    localStorage.login=1;
-    show('home');
-  }else alert('Login gagal');
-}
-function logout(){
-  localStorage.clear();
-  location.reload();
-}
-if(localStorage.login) show('home');
-
-/* NAV */
-function show(id){
-  ['login','home','kasir','menu'].forEach(x=>{
-    document.getElementById(x).classList.add('hidden');
-  });
-  document.getElementById(id).classList.remove('hidden');
-}
-function backHome(){show('home')}
-function openKasir(){loadMenu();show('kasir')}
-function openMenu(){renderSaved();show('menu')}
-
-/* MENU DATA */
-let menus=JSON.parse(localStorage.menus||'[]');
+const USERS={admin:'1234'};
 let cart=[];
 
-function saveMenu(){
-  if(!menuName.value||!menuPrice.value) return;
-  menus.push({name:menuName.value,price:Number(menuPrice.value)});
-  localStorage.menus=JSON.stringify(menus);
-  menuName.value='';menuPrice.value='';
-  renderSaved();
-}
-function renderSaved(){
-  savedMenu.innerHTML='';
-  menus.forEach(m=>{
-    savedMenu.innerHTML+=`<p>${m.name} - Rp ${m.price.toLocaleString()}</p>`;
-  });
+function login(){
+  if(USERS[user.value]===pass.value){
+    loginPage.classList.add('hidden');
+    homePage.classList.remove('hidden');
+  } else alert('Login salah');
 }
 
-/* KASIR */
-function loadMenu(){
-  menuList.innerHTML='';
+function backHome(){
+  menuPage.classList.add('hidden');
+  kasirPage.classList.add('hidden');
+  homePage.classList.remove('hidden');
+}
+
+function openMenu(){
+  homePage.classList.add('hidden');
+  menuPage.classList.remove('hidden');
+  renderMenuList();
+}
+
+function saveMenu(){
+  const menus=JSON.parse(localStorage.getItem('menus')||'[]');
+  menus.push({name:menuName.value,price:Number(menuPrice.value)});
+  localStorage.setItem('menus',JSON.stringify(menus));
+  menuName.value='';menuPrice.value='';
+  renderMenuList();
+}
+
+function renderMenuList(){
+  const menus=JSON.parse(localStorage.getItem('menus')||'[]');
+  menuList.innerHTML=menus.map(m=>`${m.name} - Rp ${m.price}`).join('<br>');
+}
+
+function openKasir(){
+  homePage.classList.add('hidden');
+  kasirPage.classList.remove('hidden');
+  cart=[];
+  renderKasir();
+}
+
+function renderKasir(){
+  const menus=JSON.parse(localStorage.getItem('menus')||'[]');
+  kasirMenu.innerHTML='';
   menus.forEach(m=>{
-    menuList.innerHTML+=`
-      <div class="menu-btn" onclick="addCart('${m.name}',${m.price})">
-        ${m.name}<br><small>Rp ${m.price.toLocaleString()}</small>
-      </div>`;
+    const d=document.createElement('div');
+    d.className='menu-item';
+    d.innerText=`${m.name}\nRp ${m.price}`;
+    d.onclick=()=>addCart(m);
+    kasirMenu.appendChild(d);
   });
   renderCart();
 }
-function addCart(name,price){
-  cart.push({name,price});
+
+function addCart(m){
+  cart.push(m);
   renderCart();
 }
+
 function renderCart(){
   let t=0;
+  cart.forEach(i=>t+=i.price);
+  cartDiv=cart.map(i=>`${i.name} - Rp ${i.price}`).join('<br>');
+  cartDiv+=cartDiv?'<hr>':'';
   cart.innerHTML='';
-  cart.forEach(c=>{
-    t+=c.price;
-    cart.innerHTML+=`<p>${c.name} - Rp ${c.price.toLocaleString()}</p>`;
-  });
-  total.innerText=t.toLocaleString();
+  document.getElementById('cart').innerHTML=cartDiv;
+  total.innerText='Total: Rp '+t;
 }
-function resetCart(){
-  cart=[];
-  renderCart();
+
+function printStruk(){
+  const today=new Date().toDateString();
+  let no=Number(localStorage.getItem('no_'+today)||1);
+  localStorage.setItem('no_'+today,no+1);
+
+  let text='DIMDIM DINO POS\n';
+  text+='No: '+no+'\n';
+  text+='----------------\n';
+  cart.forEach(i=>text+=`${i.name}\nRp ${i.price}\n`);
+  text+='----------------\n';
+  text+=total.innerText+'\n\n\n';
+
+  const w=window.open('');
+  w.document.write('<pre>'+text+'</pre>');
+  w.print();
+  w.close();
 }
 </script>
 
 </body>
-      </html>
+</html>
