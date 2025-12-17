@@ -8,198 +8,110 @@
 <style>
 *{box-sizing:border-box;font-family:Arial;margin:0;padding:0}
 body{background:#0f3d2e;color:#fff}
-
-/* GENERAL */
-button,input{
-  width:100%;
-  padding:12px;
-  margin-bottom:12px;
-  border:none;
-  border-radius:10px;
-}
+button,input{width:100%;padding:12px;border:none;border-radius:10px;margin-bottom:10px}
 button{background:#22c55e;font-weight:bold}
+.card{background:#134e3a;padding:16px;border-radius:16px;margin-bottom:14px}
+header{padding:16px;text-align:center;font-weight:bold;font-size:20px}
 
-/* LOGIN */
-.center{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+/* GRID MENU */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
 }
-.card{
-  background:#134e3a;
-  width:90%;
-  max-width:380px;
-  padding:20px;
-  border-radius:16px;
-}
-.error{display:none;background:#dc2626;padding:10px;text-align:center}
-
-/* HEADER */
-header{
-  background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6));
-  padding:20px;
+.menu-btn{
+  background:#22c55e;
+  color:#000;
+  padding:16px;
   text-align:center;
-  font-size:20px;
+  border-radius:12px;
   font-weight:bold;
 }
-
-/* MENU */
-.menu{padding:16px}
-.menu button{margin-bottom:14px}
-
-/* MODAL */
-.modal{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.6);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:99;
-}
-.modal-box{
-  background:#134e3a;
-  padding:20px;
-  border-radius:16px;
-  width:90%;
-  max-width:320px;
-}
-.modal-box h3{text-align:center;margin-bottom:12px}
-
-/* KASIR */
-.kasir-page{padding:14px}
-.list div{margin-bottom:6px}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div id="loginPage" class="center">
-  <div class="card">
-    <h2 style="text-align:center">Dimdim Dino POS</h2>
-    <input id="username" placeholder="Username">
-    <input id="password" type="password" placeholder="Password">
-    <button onclick="login()">MASUK</button>
-    <div id="error" class="error">Login gagal</div>
-  </div>
+<header>DIMDIM DINO POS</header>
+
+<div class="card">
+  Order Type: <b id="orderLabel">QRIS</b>
 </div>
 
-<!-- HOME -->
-<div id="homePage" style="display:none">
-  <header>DIMDIM DINO POS</header>
-
-  <div class="menu">
-    <button onclick="openKasir()">KASIR</button>
-    <button disabled>DAFTAR MENU</button>
-    <button disabled>LAPORAN</button>
-    <button onclick="logout()">LOGOUT</button>
-  </div>
+<div class="card">
+  <h3>Pilih Menu</h3>
+  <div class="grid" id="menuGrid"></div>
 </div>
 
-<!-- KASIR PAGE -->
-<div id="kasirPage" class="kasir-page" style="display:none">
-  <div class="card">
-    <h3>Kasir</h3>
-    <p>Order Type: <b id="orderLabel">-</b></p>
-  </div>
-
-  <div class="card">
-    <input id="itemName" placeholder="Nama Item">
-    <input id="itemQty" type="number" placeholder="Qty" value="1">
-    <input id="itemPrice" type="number" placeholder="Harga">
-    <button onclick="addItem()">Tambah Item</button>
-  </div>
-
-  <div class="card">
-    <h4>Daftar Item</h4>
-    <div id="itemList" class="list"></div>
-    <hr style="margin:10px 0">
-    <h3>Total: Rp <span id="total">0</span></h3>
-  </div>
-
-  <button onclick="backHome()">Kembali</button>
-</div>
-
-<!-- MODAL ORDER TYPE -->
-<div id="orderModal" class="modal">
-  <div class="modal-box">
-    <h3>Pilih Order Type</h3>
-    <button onclick="selectOrder('CASH')">Cash</button>
-    <button onclick="selectOrder('QRIS')">QRIS</button>
-    <button onclick="selectOrder('ShopeeFood')">Shopee Food</button>
-    <button onclick="selectOrder('GrabFood')">Grab Food</button>
-    <button onclick="selectOrder('GoFood')">GoFood</button>
-    <button onclick="closeModal()">Batal</button>
-  </div>
+<div class="card">
+  <h3>Keranjang</h3>
+  <div id="cartList"></div>
+  <hr>
+  <h2>Total: Rp <span id="total">0</span></h2>
 </div>
 
 <script>
-const USERS=[{u:'admin',p:'1234'}];
-let cart=[], orderType=null;
-
-/* LOGIN */
-function login(){
-  if(!USERS.find(x=>x.u===username.value&&x.p===password.value)){
-    error.style.display='block';return;
+// ===== DATA MENU (EDIT DI SINI SAJA) =====
+const MENUS=[
+  {
+    name:'DIMSUM MIX 16',
+    price:{
+      CASH:90000,
+      QRIS:98000,
+      GOFOOD:105000,
+      GRABFOOD:103000,
+      SHOPEEFOOD:102000
+    }
+  },
+  {
+    name:'DIMSUM MIX 8',
+    price:{
+      CASH:50000,
+      QRIS:55000,
+      GOFOOD:60000,
+      GRABFOOD:58000,
+      SHOPEEFOOD:57000
+    }
   }
-  localStorage.setItem('login','1');
-  showHome();
-}
-function showHome(){
-  loginPage.style.display='none';
-  kasirPage.style.display='none';
-  homePage.style.display='block';
-}
-function logout(){
-  localStorage.clear();
-  location.reload();
-}
+];
 
-/* KASIR */
-function openKasir(){
-  orderModal.style.display='flex';
-}
-function closeModal(){
-  orderModal.style.display='none';
-}
-function selectOrder(type){
-  orderType=type;
-  orderLabel.innerText=type;
-  closeModal();
-  homePage.style.display='none';
-  kasirPage.style.display='block';
-}
+// ===== STATE =====
+let orderType='QRIS';
+let cart=[];
 
-/* ITEM */
-function addItem(){
-  const n=itemName.value;
-  const q=Number(itemQty.value);
-  const p=Number(itemPrice.value);
-  if(!n||!q||!p) return alert('Lengkapi item');
-
-  cart.push({n,q,p});
-  itemName.value=''; itemQty.value=1; itemPrice.value='';
-  render();
-}
-function render(){
-  let t=0,html='';
-  cart.forEach(i=>{
-    const s=i.q*i.p;
-    t+=s;
-    html+=`<div>${i.q}x ${i.n} - Rp ${s}</div>`;
+// ===== RENDER MENU =====
+function renderMenu(){
+  menuGrid.innerHTML='';
+  MENUS.forEach((m,i)=>{
+    const div=document.createElement('div');
+    div.className='menu-btn';
+    div.innerHTML=`${m.name}<br>Rp ${m.price[orderType].toLocaleString()}`;
+    div.onclick=()=>addItem(i);
+    menuGrid.appendChild(div);
   });
-  itemList.innerHTML=html;
+}
+
+// ===== ADD ITEM =====
+function addItem(i){
+  const m=MENUS[i];
+  cart.push({name:m.name,price:m.price[orderType]});
+  renderCart();
+}
+
+// ===== CART =====
+function renderCart(){
+  let html='',t=0;
+  cart.forEach(c=>{
+    html+=`<div>${c.name} - Rp ${c.price.toLocaleString()}</div>`;
+    t+=c.price;
+  });
+  cartList.innerHTML=html;
   total.innerText=t.toLocaleString();
 }
-function backHome(){
-  kasirPage.style.display='none';
-  homePage.style.display='block';
-}
 
-/* AUTO LOGIN */
-if(localStorage.getItem('login')) showHome();
+// INIT
+orderLabel.innerText=orderType;
+renderMenu();
 </script>
 
 </body>
