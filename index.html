@@ -1,200 +1,237 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dimdim Dino POS</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Ny. Goan - Pastel & Puding</title>
+    <style>
+        /* TEMA WARNA NY. GOAN: KUNING & COKLAT */
+        :root { 
+            --primary: #8B4513; /* Coklat Tua */
+            --accent: #FFD700;  /* Kuning Emas */
+            --light-yellow: #FFF8E1; 
+            --success: #2E7D32;
+            --bg: #fafafa;
+        }
+        
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #3e2723; }
+        .container { max-width: 800px; margin: auto; }
+        
+        /* Navigasi Rapi */
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; background: #efebe9; padding: 6px; border-radius: 15px; }
+        .tab-btn { 
+            flex: 1; padding: 14px; border: none; border-radius: 10px; cursor: pointer; 
+            font-weight: bold; font-size: 1rem; color: #795548; background: none; transition: 0.3s;
+        }
+        .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 
-<style>
-*{box-sizing:border-box;font-family:Arial;margin:0;padding:0}
-body{background:#0f3d2e;color:#fff}
-.hidden{display:none}
+        .card { background: white; padding: 20px; border-radius: 18px; box-shadow: 0 6px 15px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px solid #eee; }
+        .hidden { display: none; }
 
-.container{padding:16px}
-.card{
-  background:#134e3a;
-  border-radius:14px;
-  padding:16px;
-  margin-bottom:16px;
-}
+        /* Input BESAR & Rapi */
+        .big-input { 
+            width: 100%; padding: 16px; font-size: 1.2rem; border: 2px solid #d7ccc8; 
+            border-radius: 12px; margin-bottom: 12px; box-sizing: border-box; background: #fff;
+        }
+        .big-input:focus { border-color: var(--accent); outline: none; background: var(--light-yellow); }
+        
+        label { font-weight: bold; display: block; margin-bottom: 8px; font-size: 1rem; color: var(--primary); }
 
-h1,h2,h3{margin-bottom:8px}
-button{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:10px;
-  background:#22c55e;
-  font-weight:bold;
-  margin-top:10px;
-}
-input{
-  width:100%;
-  padding:12px;
-  border-radius:8px;
-  border:none;
-  margin-top:8px;
-}
-
-.menu-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-
-.menu-item{
-  background:#22c55e;
-  color:#000;
-  padding:14px;
-  border-radius:12px;
-  font-weight:bold;
-}
-
-.header{
-  text-align:center;
-  font-size:20px;
-  font-weight:bold;
-  padding:16px;
-}
-</style>
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; border-radius: 10px; overflow: hidden; }
+        th { background: var(--light-yellow); padding: 12px; text-align: left; font-size: 0.9rem; border-bottom: 2px solid var(--accent); }
+        td { padding: 12px; border-bottom: 1px solid #f5f5f5; }
+        
+        /* Tombol Layout Ny. Goan */
+        .btn { padding: 16px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 1.1rem; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); }
+        
+        .btn-add { background: var(--primary); color: white; width: 100%; }
+        .btn-calc { background: var(--accent); color: var(--primary); width: 100%; margin-top: 15px; box-shadow: 0 4px 0 #cfb500; }
+        
+        .btn-copy { 
+            background: var(--primary); color: white; padding: 10px 20px; font-size: 0.9rem; 
+            float: right; margin-bottom: 10px; border-radius: 8px;
+        }
+        
+        .row-active { background-color: var(--light-yellow) !important; font-weight: bold; }
+        .badge-qty { background: var(--accent); padding: 4px 8px; border-radius: 6px; font-size: 1.1rem; }
+    </style>
 </head>
-
 <body>
 
-<!-- LOGIN -->
-<div id="loginPage" class="container">
-  <div class="card">
-    <h2>Login Kasir</h2>
-    <input id="user" placeholder="Username">
-    <input id="pass" type="password" placeholder="Password">
-    <button onclick="login()">MASUK</button>
-  </div>
-</div>
+<div class="container">
+    <div style="text-align: center; margin-bottom: 20px;">
+        <h1 style="color: var(--primary); margin: 0;">Ny. Goan</h1>
+        <p style="margin: 5px 0; color: #8d6e63;">Inventory System - Pastel & Puding</p>
+    </div>
 
-<!-- HOME -->
-<div id="homePage" class="hidden container">
-  <div class="header">DIMDIM DINO POS</div>
-  <div class="card">
-    <button onclick="openKasir()">KASIR</button>
-    <button onclick="openMenu()">DAFTAR MENU</button>
-  </div>
-</div>
+    <div class="tabs">
+        <button class="tab-btn active" id="btn-sales" onclick="switchTab('tab-sales')">🛒 1. Input Sales</button>
+        <button class="tab-btn" id="btn-resep" onclick="switchTab('tab-resep')">⚙️ 2. Master Resep</button>
+    </div>
 
-<!-- DAFTAR MENU -->
-<div id="menuPage" class="hidden container">
-  <div class="card">
-    <h3>Daftar Menu</h3>
-    <input id="menuName" placeholder="Nama Menu">
-    <input id="menuPrice" type="number" placeholder="Harga">
-    <button onclick="saveMenu()">Simpan Menu</button>
-    <div id="menuList"></div>
-    <button onclick="backHome()">Kembali</button>
-  </div>
-</div>
+    <div id="tab-sales" class="tab-content">
+        <div class="card">
+            <h2 style="margin-top:0; color: var(--primary);">Penjualan Hari Ini</h2>
+            <table id="tableSales">
+                <thead><tr><th>Menu / Paket</th><th width="140">Jumlah Laku</th></tr></thead>
+                <tbody id="bodySales"></tbody>
+            </table>
+            <button class="btn btn-calc" onclick="calculateTotal()">🔥 HITUNG STOK KELUAR</button>
+        </div>
 
-<!-- KASIR -->
-<div id="kasirPage" class="hidden container">
-  <div class="card">
-    <h3>Pilih Menu</h3>
-    <div id="kasirMenu" class="menu-grid"></div>
-    <hr>
-    <h3>Keranjang</h3>
-    <div id="cart"></div>
-    <h2 id="total">Total: Rp 0</h2>
-    <button onclick="printStruk()">CETAK STRUK</button>
-    <button onclick="backHome()">Kembali</button>
-  </div>
+        <div id="resultSection" class="card hidden" style="border: 2px solid var(--accent); background: var(--light-yellow);">
+            <button class="btn btn-copy" onclick="copyOnlyNumbers()">📋 Salin Angka Saja</button>
+            <h2 style="color: var(--primary); margin-top:0">Total Keluar</h2>
+            <p style="font-size: 0.8rem; color: #795548;">Urutan permanen. Silahkan Paste di kolom TOTAL Excel.</p>
+            <table id="tableFinal" style="background: white;">
+                <thead><tr><th>Nama Barang</th><th>Total</th></tr></thead>
+                <tbody id="bodyFinal"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="tab-resep" class="tab-content hidden">
+        <div class="card">
+            <h2 style="margin-top:0; color: var(--primary);">Atur Resep</h2>
+            
+            <label>Nama Menu</label>
+            <input type="text" id="mName" class="big-input" placeholder="Contoh: PASTEL DAGING 1L">
+            
+            <label>Bahan Baku</label>
+            <select id="mBahanSelect" class="big-input"></select>
+            
+            <label>Jumlah (Qty) Per Paket</label>
+            <input type="number" id="mQty" class="big-input" placeholder="0">
+            
+            <button class="btn btn-add" onclick="addResep()">TAMBAHKAN BAHAN</button>
+        </div>
+
+        <div class="card">
+            <h3 style="color: var(--primary);">Daftar Resep Terinput</h3>
+            <table id="tableResep">
+                <thead><tr><th>Menu</th><th>Bahan</th><th>Qty</th><th>Aksi</th></tr></thead>
+                <tbody id="bodyResep"></tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <script>
-const USERS={admin:'1234'};
-let cart=[];
+    // DAFTAR TETAP SESUAI URUTAN EXCEL ANDA
+    const DAFTAR_BARANG_PERMANEN = [
+        "PASTEL DAGING", "PASTEL AYAM", "STIKER BULAT", "DUS SELUSIN", "DUS 1/2 LUSIN", 
+        "DUS 2 PCS", "STIKER PANJANG", "PUDING CARAMEL", "PUDING MANGGA", "PLASTIK 35", 
+        "PLASTIK 25", "PLASTIK 15", "MINYAK", "KERTAS ROTI 1 LUSIN", "KERTAS ROTI 1/2 LUSIN", 
+        "LABEL FROZEN", "KABEL TIES", "KERTAS THERMAL", "PITA", "KARTU UCAPAN", 
+        "KANTONG BAG 1 LUSIN", "KANTONG BAG 1/2 LUSIN", "SENDOK PUDING", 
+        "KERTAS PRINT TOKPED SHOPEE", "SAMBAL KACANG", "SAMBAL KACANG FROZEN", 
+        "PAPPER CUP", "MINERAL CLEO", "PLASTIK SAMBAL"
+    ];
 
-function login(){
-  if(USERS[user.value]===pass.value){
-    loginPage.classList.add('hidden');
-    homePage.classList.remove('hidden');
-  } else alert('Login salah');
-}
+    let resepData = JSON.parse(localStorage.getItem('nyGoanResep')) || [];
+    let currentTotals = {};
 
-function backHome(){
-  menuPage.classList.add('hidden');
-  kasirPage.classList.add('hidden');
-  homePage.classList.remove('hidden');
-}
+    function switchTab(id) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.remove('hidden');
+        if (id === 'tab-sales') {
+            document.getElementById('btn-sales').classList.add('active');
+            renderSales();
+        } else {
+            document.getElementById('btn-resep').classList.add('active');
+            initBahan();
+            renderResep();
+        }
+    }
 
-function openMenu(){
-  homePage.classList.add('hidden');
-  menuPage.classList.remove('hidden');
-  renderMenuList();
-}
+    function initBahan() {
+        const sel = document.getElementById('mBahanSelect');
+        if(sel) sel.innerHTML = DAFTAR_BARANG_PERMANEN.map(b => `<option value="${b}">${b}</option>`).join('');
+    }
 
-function saveMenu(){
-  const menus=JSON.parse(localStorage.getItem('menus')||'[]');
-  menus.push({name:menuName.value,price:Number(menuPrice.value)});
-  localStorage.setItem('menus',JSON.stringify(menus));
-  menuName.value='';menuPrice.value='';
-  renderMenuList();
-}
+    function addResep() {
+        const menu = document.getElementById('mName').value;
+        const bahan = document.getElementById('mBahanSelect').value;
+        const qty = parseFloat(document.getElementById('mQty').value);
+        if(!menu || isNaN(qty)) return alert("Isi data dengan lengkap!");
+        
+        resepData.push({ id: Date.now(), menu: menu.toUpperCase(), bahan, qty });
+        localStorage.setItem('nyGoanResep', JSON.stringify(resepData));
+        renderResep();
+        document.getElementById('mQty').value = '';
+        alert("Bahan ditambahkan!");
+    }
 
-function renderMenuList(){
-  const menus=JSON.parse(localStorage.getItem('menus')||'[]');
-  menuList.innerHTML=menus.map(m=>`${m.name} - Rp ${m.price}`).join('<br>');
-}
+    function renderResep() {
+        const body = document.getElementById('bodyResep');
+        body.innerHTML = resepData.map(r => `<tr><td>${r.menu}</td><td>${r.bahan}</td><td>${r.qty}</td><td><button onclick="delResep(${r.id})" style="color:red; border:none; background:none; cursor:pointer;">hapus</button></td></tr>`).join('');
+    }
 
-function openKasir(){
-  homePage.classList.add('hidden');
-  kasirPage.classList.remove('hidden');
-  cart=[];
-  renderKasir();
-}
+    function delResep(id) {
+        if(confirm("Hapus bahan ini?")) {
+            resepData = resepData.filter(r => r.id !== id);
+            localStorage.setItem('nyGoanResep', JSON.stringify(resepData));
+            renderResep();
+        }
+    }
 
-function renderKasir(){
-  const menus=JSON.parse(localStorage.getItem('menus')||'[]');
-  kasirMenu.innerHTML='';
-  menus.forEach(m=>{
-    const d=document.createElement('div');
-    d.className='menu-item';
-    d.innerText=`${m.name}\nRp ${m.price}`;
-    d.onclick=()=>addCart(m);
-    kasirMenu.appendChild(d);
-  });
-  renderCart();
-}
+    function renderSales() {
+        const body = document.getElementById('bodySales');
+        const unique = [...new Set(resepData.map(r => r.menu))];
+        if(unique.length === 0) {
+            body.innerHTML = "<tr><td colspan='2' style='text-align:center; padding:20px;'>Belum ada menu di Master Resep.</td></tr>";
+            return;
+        }
+        body.innerHTML = unique.map(m => `<tr><td><strong>${m}</strong></td><td><input type="number" class="sales-input big-input" data-menu="${m}" value="0" style="margin:0; padding:10px;"></td></tr>`).join('');
+    }
 
-function addCart(m){
-  cart.push(m);
-  renderCart();
-}
+    function calculateTotal() {
+        currentTotals = {};
+        DAFTAR_BARANG_PERMANEN.forEach(b => currentTotals[b] = 0);
+        
+        document.querySelectorAll('.sales-input').forEach(input => {
+            const mName = input.getAttribute('data-menu');
+            const sold = parseFloat(input.value) || 0;
+            resepData.filter(r => r.menu === mName).forEach(res => {
+                currentTotals[res.bahan] += (res.qty * sold);
+            });
+        });
 
-function renderCart(){
-  let t=0;
-  cart.forEach(i=>t+=i.price);
-  cartDiv=cart.map(i=>`${i.name} - Rp ${i.price}`).join('<br>');
-  cartDiv+=cartDiv?'<hr>':'';
-  cart.innerHTML='';
-  document.getElementById('cart').innerHTML=cartDiv;
-  total.innerText='Total: Rp '+t;
-}
+        const body = document.getElementById('bodyFinal');
+        body.innerHTML = DAFTAR_BARANG_PERMANEN.map(b => `
+            <tr class="${currentTotals[b] > 0 ? 'row-active' : ''}">
+                <td>${b}</td>
+                <td><span class="${currentTotals[b] > 0 ? 'badge-qty' : ''}">${currentTotals[b]}</span></td>
+            </tr>
+        `).join('');
+        document.getElementById('resultSection').classList.remove('hidden');
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
 
-function printStruk(){
-  const today=new Date().toDateString();
-  let no=Number(localStorage.getItem('no_'+today)||1);
-  localStorage.setItem('no_'+today,no+1);
+    // FUNGSI SALIN ANGKA SAJA (HANYA NILAI)
+    function copyOnlyNumbers() {
+        // Mengambil hanya angka saja dipisahkan baris baru agar pas di kolom Excel
+        let textToCopy = DAFTAR_BARANG_PERMANEN.map(b => currentTotals[b]).join('\r\n');
+        
+        // Teknik fallback untuk menyalin teks
+        const textArea = document.createElement("textarea");
+        textArea.value = textToCopy;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            alert("✅ Angka Berhasil Disalin!\nSilahkan tempel (Paste) di Excel pada kolom TOTAL.");
+        } catch (err) {
+            alert("Gagal menyalin. Silahkan coba lagi.");
+        }
+        document.body.removeChild(textArea);
+    }
 
-  let text='DIMDIM DINO POS\n';
-  text+='No: '+no+'\n';
-  text+='----------------\n';
-  cart.forEach(i=>text+=`${i.name}\nRp ${i.price}\n`);
-  text+='----------------\n';
-  text+=total.innerText+'\n\n\n';
-
-  const w=window.open('');
-  w.document.write('<pre>'+text+'</pre>');
-  w.print();
-  w.close();
-}
+    // Inisialisasi awal
+    initBahan();
+    renderResep();
 </script>
-
 </body>
 </html>
