@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventory Ny. Goan - Pastel & Puding</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/x-icon" href="favicon.ico?v=1.2">
     <style>
-        /* TEMA WARNA NY. GOAN: KUNING & COKLAT */
         :root { 
-            --primary: #4A321F; /* Coklat Gelap sesuai Logo */
-            --accent: #E9C44C;  /* Kuning Pastel sesuai Logo */
+            --primary: #4A321F; 
+            --accent: #E9C44C;  
             --light-yellow: #FFF9E6; 
             --success: #2E7D32;
             --bg: #fafafa;
@@ -18,7 +17,6 @@
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #3e2723; }
         .container { max-width: 800px; margin: auto; }
         
-        /* Navigasi Rapi */
         .tabs { display: flex; gap: 8px; margin-bottom: 20px; background: #efebe9; padding: 6px; border-radius: 15px; }
         .tab-btn { 
             flex: 1; padding: 14px; border: none; border-radius: 10px; cursor: pointer; 
@@ -42,16 +40,10 @@
         td { padding: 12px; border-bottom: 1px solid #f5f5f5; }
         
         .btn { padding: 16px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 1.1rem; transition: 0.2s; }
-        .btn:active { transform: scale(0.98); }
-        
         .btn-add { background: var(--primary); color: white; width: 100%; }
         .btn-calc { background: var(--accent); color: var(--primary); width: 100%; margin-top: 15px; box-shadow: 0 4px 0 #c2a136; }
         
-        .btn-copy { 
-            background: var(--primary); color: white; padding: 10px 20px; font-size: 0.9rem; 
-            float: right; margin-bottom: 10px; border-radius: 8px;
-        }
-        
+        .btn-copy { background: var(--primary); color: white; padding: 10px 20px; font-size: 0.9rem; float: right; margin-bottom: 10px; border-radius: 8px; }
         .row-active { background-color: var(--light-yellow) !important; font-weight: bold; }
         .badge-qty { background: var(--accent); padding: 4px 8px; border-radius: 6px; font-size: 1.1rem; }
     </style>
@@ -60,7 +52,7 @@
 
 <div class="container">
     <div style="text-align: center; margin-bottom: 20px;">
-        <h1 style="color: var(--primary); margin: 0; font-family: 'Serif';">Ny. Goan</h1>
+        <h1 style="color: var(--primary); margin: 0;">Ny. Goan</h1>
         <p style="margin: 5px 0; color: #8d6e63; font-weight: bold;">Inventory System - Pastel & Puding</p>
     </div>
 
@@ -82,7 +74,6 @@
         <div id="resultSection" class="card hidden" style="border: 2px solid var(--accent); background: var(--light-yellow);">
             <button class="btn btn-copy" onclick="copyOnlyNumbers()">📋 Salin Angka Saja</button>
             <h2 style="color: var(--primary); margin-top:0">Total Keluar</h2>
-            <p style="font-size: 0.8rem; color: #795548;">Urutan permanen. Silahkan Paste di kolom TOTAL Excel.</p>
             <table id="tableFinal" style="background: white;">
                 <thead><tr><th>Nama Barang</th><th>Total</th></tr></thead>
                 <tbody id="bodyFinal"></tbody>
@@ -93,19 +84,14 @@
     <div id="tab-resep" class="tab-content hidden">
         <div class="card">
             <h2 style="margin-top:0; color: var(--primary);">Atur Resep</h2>
-            
             <label>Nama Menu</label>
             <input type="text" id="mName" class="big-input" placeholder="Contoh: PASTEL DAGING 1L">
-            
             <label>Bahan Baku</label>
             <select id="mBahanSelect" class="big-input"></select>
-            
             <label>Jumlah (Qty) Per Paket</label>
             <input type="number" id="mQty" class="big-input" placeholder="0">
-            
             <button class="btn btn-add" onclick="addResep()">TAMBAHKAN BAHAN</button>
         </div>
-
         <div class="card">
             <h3 style="color: var(--primary);">Daftar Resep Terinput</h3>
             <table id="tableResep">
@@ -133,12 +119,10 @@
     function switchTab(id) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        
         document.getElementById(id).classList.remove('hidden');
-        
         if (id === 'tab-sales') {
             document.getElementById('btn-sales').classList.add('active');
-            renderSales(); // Perbaikan: Langsung panggil render agar menu muncul
+            renderSales(); 
         } else {
             document.getElementById('btn-resep').classList.add('active');
             initBahan();
@@ -156,7 +140,6 @@
         const bahan = document.getElementById('mBahanSelect').value;
         const qty = parseFloat(document.getElementById('mQty').value);
         if(!menu || isNaN(qty)) return alert("Isi data dengan lengkap!");
-        
         resepData.push({ id: Date.now(), menu: menu.toUpperCase(), bahan, qty });
         localStorage.setItem('nyGoanResep', JSON.stringify(resepData));
         renderResep();
@@ -165,7 +148,7 @@
 
     function renderResep() {
         const body = document.getElementById('bodyResep');
-        body.innerHTML = resepData.map(r => `<tr><td>${r.menu}</td><td>${r.bahan}</td><td>${r.qty}</td><td><button onclick="delResep(${r.id})" style="color:red; border:none; background:none; cursor:pointer;">hapus</button></td></tr>`).join('');
+        body.innerHTML = resepData.map(r => `<tr><td>${r.menu}</td><td>${r.bahan}</td><td>${r.qty}</td><td><button onclick="delResep(${r.id})" style="color:red; border:none; background:none;">hapus</button></td></tr>`).join('');
     }
 
     function delResep(id) {
@@ -180,16 +163,15 @@
         const body = document.getElementById('bodySales');
         const unique = [...new Set(resepData.map(r => r.menu))];
         if(unique.length === 0) {
-            body.innerHTML = "<tr><td colspan='2' style='text-align:center; padding:20px;'>Belum ada menu di Master Resep.</td></tr>";
+            body.innerHTML = "<tr><td colspan='2' style='text-align:center;'>Master Resep Masih Kosong.</td></tr>";
             return;
         }
-        body.innerHTML = unique.map(m => `<tr><td><strong>${m}</strong></td><td><input type="number" class="sales-input big-input" data-menu="${m}" value="0" style="margin:0; padding:10px;"></td></tr>`).join('');
+        body.innerHTML = unique.map(m => `<tr><td><strong>${m}</strong></td><td><input type="number" class="sales-input big-input" data-menu="${m}" value="0" style="margin:0;"></td></tr>`).join('');
     }
 
     function calculateTotal() {
         currentTotals = {};
         DAFTAR_BARANG_PERMANEN.forEach(b => currentTotals[b] = 0);
-        
         document.querySelectorAll('.sales-input').forEach(input => {
             const mName = input.getAttribute('data-menu');
             const sold = parseFloat(input.value) || 0;
@@ -197,7 +179,6 @@
                 currentTotals[res.bahan] += (res.qty * sold);
             });
         });
-
         const body = document.getElementById('bodyFinal');
         body.innerHTML = DAFTAR_BARANG_PERMANEN.map(b => `
             <tr class="${currentTotals[b] > 0 ? 'row-active' : ''}">
@@ -206,7 +187,6 @@
             </tr>
         `).join('');
         document.getElementById('resultSection').classList.remove('hidden');
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     }
 
     function copyOnlyNumbers() {
@@ -215,19 +195,13 @@
         textArea.value = textToCopy;
         document.body.appendChild(textArea);
         textArea.select();
-        try {
-            document.execCommand('copy');
-            alert("✅ Angka Berhasil Disalin!");
-        } catch (err) {
-            alert("Gagal menyalin.");
-        }
+        document.execCommand('copy');
+        alert("✅ Angka Berhasil Disalin!");
         document.body.removeChild(textArea);
     }
 
-    // Jalankan render saat pertama kali buka
-    window.onload = () => {
-        renderSales();
-    };
+    // MEMASTIKAN MENU LANGSUNG MUNCUL SAAT BUKA WEB
+    window.onload = () => { renderSales(); };
 </script>
 </body>
 </html>
